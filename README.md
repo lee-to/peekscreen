@@ -1,6 +1,5 @@
 # peekscreen
 
-[![Crates.io](https://img.shields.io/crates/v/peekscreen.svg)](https://crates.io/crates/peekscreen)
 [![CI](https://github.com/lee-to/peekscreen/actions/workflows/ci.yml/badge.svg)](https://github.com/lee-to/peekscreen/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -29,15 +28,7 @@ claude mcp add peekscreen -- peekscreen
 
 Done! The `peekscreen` server is now available in your agent.
 
-## Other installation methods
-
-### From crates.io
-
-```bash
-cargo install peekscreen
-```
-
-### Build from source
+## Build from source
 
 ```bash
 git clone https://github.com/lee-to/peekscreen.git
