@@ -1,7 +1,15 @@
 [package]
-name = "screenshot-mcp"
+name = "peekscreen"
 version = "0.1.0"
 edition = "2024"
+description = "MCP server for capturing window and screen screenshots. Works with Claude Desktop and any MCP-compatible client."
+license = "MIT"
+repository = "https://github.com/lee-to/peekscreen"
+homepage = "https://github.com/lee-to/peekscreen"
+readme = "README.md"
+keywords = ["mcp", "screenshot", "screen-capture", "peekscreen", "ai"]
+categories = ["command-line-utilities", "multimedia::images"]
+exclude = [".ai-factory/", ".ai-factory.json", ".claude/", ".idea/", ".github/"]
 
 [dependencies]
 rmcp = { version = "0.16", features = ["server", "transport-io", "macros"] }

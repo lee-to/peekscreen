@@ -30,22 +30,37 @@ pub fn list_windows() -> anyhow::Result<Vec<WindowInfo>> {
     debug!(total_raw = windows.len(), "Raw windows enumerated");
 
     let mut infos = Vec::new();
+    let mut filtered = 0u32;
     for w in windows {
+        let id = w.id().unwrap_or(0);
         let title = match w.title() {
             Ok(t) if !t.is_empty() => t,
-            _ => continue,
+            Ok(_) => {
+                debug!(id, app = %w.app_name().unwrap_or_default(), "Skipping window: empty title");
+                filtered += 1;
+                continue;
+            }
+            Err(e) => {
+                debug!(id, error = %e, "Skipping window: title error");
+                filtered += 1;
+                continue;
+            }
         };
         let is_minimized = w.is_minimized().unwrap_or(false);
         if is_minimized {
+            debug!(id, %title, "Skipping window: minimized");
+            filtered += 1;
             continue;
         }
         let width = w.width().unwrap_or(0);
         let height = w.height().unwrap_or(0);
         if width == 0 || height == 0 {
+            debug!(id, %title, "Skipping window: zero size");
+            filtered += 1;
             continue;
         }
         infos.push(WindowInfo {
-            id: w.id().unwrap_or(0),
+            id,
             title,
             app_name: w.app_name().unwrap_or_default(),
             width,
@@ -54,7 +69,15 @@ pub fn list_windows() -> anyhow::Result<Vec<WindowInfo>> {
         });
     }
 
-    info!(count = infos.len(), "Windows listed");
+    info!(count = infos.len(), filtered, "Windows listed");
+    if infos.len() <= 1 {
+        warn!(
+            "Very few windows found ({}) — if windows are open but not listed, \
+             check Screen Recording permission in \
+             System Settings → Privacy & Security → Screen Recording",
+            infos.len()
+        );
+    }
     Ok(infos)
 }
 

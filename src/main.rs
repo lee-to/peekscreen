@@ -13,13 +13,13 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "screenshot_mcp=info".parse().unwrap()),
+                .unwrap_or_else(|_| "peekscreen=info".parse().unwrap()),
         )
         .with_writer(std::io::stderr)
         .with_ansi(false)
         .init();
 
-    info!("Starting screenshot-mcp server");
+    info!("Starting peekscreen server");
 
     let service = ScreenshotServer::new().serve(stdio()).await?;
     service.waiting().await?;
