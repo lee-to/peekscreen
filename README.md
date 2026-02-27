@@ -11,11 +11,15 @@ Currently tested on **macOS**. Windows and Linux support is possible via [xcap](
 
 **1. Install:**
 
-```bash
-# macOS (Apple Silicon)
-curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-aarch64-apple-darwin.tar.gz | tar xz -C /usr/local/bin
+### macOS (Apple Silicon)
 
-# macOS (Intel)
+```bash
+curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-aarch64-apple-darwin.tar.gz | tar xz -C /usr/local/bin
+```
+
+### macOS (Intel)
+
+```bash
 curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-x86_64-apple-darwin.tar.gz | tar xz -C /usr/local/bin
 ```
 
