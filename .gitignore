@@ -1,0 +1,5 @@
+/target
+.idea/
+.ai-factory/
+.ai-factory.json
+.claude/
