@@ -1,13 +1,9 @@
 use rmcp::{
-    ErrorData as McpError, ServerHandler,
-    handler::server::router::tool::ToolRouter,
-    handler::server::wrapper::Parameters,
-    model::*,
-    schemars,
-    tool, tool_handler, tool_router,
+    ErrorData as McpError, ServerHandler, handler::server::router::tool::ToolRouter,
+    handler::server::wrapper::Parameters, model::*, schemars, tool, tool_handler, tool_router,
 };
 use serde::Deserialize;
-use tracing::{info, error};
+use tracing::{error, info};
 
 use crate::capture;
 use crate::imaging::{self, ImageFormat};
@@ -47,7 +43,9 @@ impl ScreenshotServer {
         }
     }
 
-    #[tool(description = "List all visible application windows. Returns JSON array with window id, title, app_name, width, height, and is_focused for each window. Use this to find window IDs or titles for screenshot_window.")]
+    #[tool(
+        description = "List all visible application windows. Returns JSON array with window id, title, app_name, width, height, and is_focused for each window. Use this to find window IDs or titles for screenshot_window."
+    )]
     pub fn list_windows(&self) -> Result<CallToolResult, McpError> {
         info!("list_windows tool called");
         match capture::list_windows() {
@@ -63,24 +61,26 @@ impl ScreenshotServer {
         }
     }
 
-    #[tool(description = "Capture a screenshot of an application window. Find a window by title (case-insensitive substring), exact id, or capture the currently focused window (if no title or id given). Returns the screenshot image and window info text.")]
+    #[tool(
+        description = "Capture a screenshot of an application window. Find a window by title (case-insensitive substring), exact id, or capture the currently focused window (if no title or id given). Returns the screenshot image and window info text."
+    )]
     pub fn screenshot_window(
         &self,
         Parameters(params): Parameters<ScreenshotWindowParams>,
     ) -> Result<CallToolResult, McpError> {
         info!(?params, "screenshot_window tool called");
         let result = (|| -> anyhow::Result<CallToolResult> {
-            let (window, window_info) = capture::find_window(
-                params.id,
-                params.title.as_deref(),
-            )?;
+            let (window, window_info) = capture::find_window(params.id, params.title.as_deref())?;
             let img = capture::capture_window(&window)?;
             let fmt = ImageFormat::from_str_opt(params.format.as_deref());
             let (b64, mime) = imaging::image_to_base64(&img, params.max_width, fmt)?;
             let info_text = format!(
                 "Window: {} ({})\nID: {}\nSize: {}x{}\nFocused: {}",
-                window_info.title, window_info.app_name,
-                window_info.id, window_info.width, window_info.height,
+                window_info.title,
+                window_info.app_name,
+                window_info.id,
+                window_info.width,
+                window_info.height,
                 window_info.is_focused
             );
             Ok(CallToolResult::success(vec![
@@ -98,7 +98,9 @@ impl ScreenshotServer {
         }
     }
 
-    #[tool(description = "Capture a screenshot of an entire screen/monitor. By default captures the primary monitor. Specify monitor_id to capture a different monitor. Returns the screenshot image and monitor info text.")]
+    #[tool(
+        description = "Capture a screenshot of an entire screen/monitor. By default captures the primary monitor. Specify monitor_id to capture a different monitor. Returns the screenshot image and monitor info text."
+    )]
     pub fn screenshot_screen(
         &self,
         Parameters(params): Parameters<ScreenshotScreenParams>,
@@ -110,8 +112,10 @@ impl ScreenshotServer {
             let (b64, mime) = imaging::image_to_base64(&img, params.max_width, fmt)?;
             let info_text = format!(
                 "Monitor: {} (id: {})\nSize: {}x{}\nPrimary: {}",
-                monitor_info.name, monitor_info.id,
-                monitor_info.width, monitor_info.height,
+                monitor_info.name,
+                monitor_info.id,
+                monitor_info.width,
+                monitor_info.height,
                 monitor_info.is_primary
             );
             Ok(CallToolResult::success(vec![

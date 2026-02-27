@@ -71,7 +71,11 @@ pub fn image_to_base64(
     let resized = resize_image(img, max_w);
     let bytes = encode_image(&resized, format)?;
     let b64 = STANDARD.encode(&bytes);
-    info!(base64_len = b64.len(), mime = format.mime_type(), "Image converted to base64");
+    info!(
+        base64_len = b64.len(),
+        mime = format.mime_type(),
+        "Image converted to base64"
+    );
     Ok((b64, format.mime_type()))
 }
 
@@ -137,9 +141,21 @@ mod tests {
     #[test]
     fn image_format_from_str() {
         assert!(matches!(ImageFormat::from_str_opt(None), ImageFormat::Png));
-        assert!(matches!(ImageFormat::from_str_opt(Some("png")), ImageFormat::Png));
-        assert!(matches!(ImageFormat::from_str_opt(Some("jpeg")), ImageFormat::Jpeg));
-        assert!(matches!(ImageFormat::from_str_opt(Some("jpg")), ImageFormat::Jpeg));
-        assert!(matches!(ImageFormat::from_str_opt(Some("JPEG")), ImageFormat::Jpeg));
+        assert!(matches!(
+            ImageFormat::from_str_opt(Some("png")),
+            ImageFormat::Png
+        ));
+        assert!(matches!(
+            ImageFormat::from_str_opt(Some("jpeg")),
+            ImageFormat::Jpeg
+        ));
+        assert!(matches!(
+            ImageFormat::from_str_opt(Some("jpg")),
+            ImageFormat::Jpeg
+        ));
+        assert!(matches!(
+            ImageFormat::from_str_opt(Some("JPEG")),
+            ImageFormat::Jpeg
+        ));
     }
 }

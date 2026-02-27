@@ -149,9 +149,9 @@ fn window_to_info(w: &Window) -> anyhow::Result<WindowInfo> {
 #[instrument(skip(window))]
 pub fn capture_window(window: &Window) -> anyhow::Result<DynamicImage> {
     info!(id = window.id().unwrap_or(0), "Capturing window");
-    let buffer = window.capture_image().map_err(|e| {
-        anyhow::anyhow!("Failed to capture window: {e}")
-    })?;
+    let buffer = window
+        .capture_image()
+        .map_err(|e| anyhow::anyhow!("Failed to capture window: {e}"))?;
     let img = DynamicImage::ImageRgba8(buffer);
     debug!(w = img.width(), h = img.height(), "Window captured");
     Ok(img)
@@ -170,19 +170,22 @@ pub struct MonitorInfo {
 /// Capture a screen/monitor screenshot.
 #[instrument]
 pub fn capture_screen(monitor_id: Option<u32>) -> anyhow::Result<(DynamicImage, MonitorInfo)> {
-    let monitors = Monitor::all().map_err(|e| {
-        anyhow::anyhow!("Failed to enumerate monitors: {e}")
-    })?;
+    let monitors =
+        Monitor::all().map_err(|e| anyhow::anyhow!("Failed to enumerate monitors: {e}"))?;
 
     debug!(count = monitors.len(), "Monitors enumerated");
 
     let monitor = if let Some(target_id) = monitor_id {
         info!(target_id, "Finding monitor by ID");
-        monitors.into_iter().find(|m| m.id().unwrap_or(0) == target_id)
+        monitors
+            .into_iter()
+            .find(|m| m.id().unwrap_or(0) == target_id)
             .ok_or_else(|| anyhow::anyhow!("No monitor found with id {target_id}"))?
     } else {
         info!("Using primary monitor");
-        monitors.into_iter().find(|m| m.is_primary().unwrap_or(false))
+        monitors
+            .into_iter()
+            .find(|m| m.is_primary().unwrap_or(false))
             .ok_or_else(|| anyhow::anyhow!("No primary monitor found"))?
     };
 
@@ -194,9 +197,9 @@ pub fn capture_screen(monitor_id: Option<u32>) -> anyhow::Result<(DynamicImage, 
         is_primary: monitor.is_primary().unwrap_or(false),
     };
 
-    let buffer = monitor.capture_image().map_err(|e| {
-        anyhow::anyhow!("Failed to capture screen: {e}")
-    })?;
+    let buffer = monitor
+        .capture_image()
+        .map_err(|e| anyhow::anyhow!("Failed to capture screen: {e}"))?;
     let img = DynamicImage::ImageRgba8(buffer);
     info!(w = img.width(), h = img.height(), monitor_name = %info.name, "Screen captured");
     Ok((img, info))
