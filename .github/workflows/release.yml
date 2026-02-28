@@ -10,14 +10,26 @@ permissions:
 jobs:
   build:
     name: Build ${{ matrix.target }}
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: peekscreen-x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: peekscreen-x86_64-pc-windows-msvc
+            archive: zip
           - target: aarch64-apple-darwin
+            os: macos-latest
             artifact: peekscreen-aarch64-apple-darwin
+            archive: tar.gz
           - target: x86_64-apple-darwin
+            os: macos-latest
             artifact: peekscreen-x86_64-apple-darwin
+            archive: tar.gz
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -25,19 +37,30 @@ jobs:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
 
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libxcb1-dev libxcb-shm0-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-xfixes0-dev libdbus-1-dev
+
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Package
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czf ../../../${{ matrix.artifact }}.tar.gz peekscreen
+          tar czf ../../../${{ matrix.artifact }}.${{ matrix.archive }} peekscreen
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "target/${{ matrix.target }}/release/peekscreen.exe" -DestinationPath "${{ matrix.artifact }}.${{ matrix.archive }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.artifact }}.tar.gz
+          path: ${{ matrix.artifact }}.${{ matrix.archive }}
 
   release:
     name: Create Release

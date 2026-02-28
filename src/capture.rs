@@ -3,6 +3,29 @@ use serde::Serialize;
 use tracing::{debug, info, instrument, warn};
 use xcap::{Monitor, Window};
 
+#[cfg(target_os = "macos")]
+fn screen_capture_permission_hint() -> &'static str {
+    "On macOS, grant Screen Recording permission in \
+     System Settings -> Privacy & Security -> Screen Recording."
+}
+
+#[cfg(target_os = "windows")]
+fn screen_capture_permission_hint() -> &'static str {
+    "On Windows, make sure the app/session is allowed to capture the desktop \
+     and the process is running in the interactive user session."
+}
+
+#[cfg(target_os = "linux")]
+fn screen_capture_permission_hint() -> &'static str {
+    "On Linux, make sure you're in a graphical desktop session and grant \
+     screen capture permission in your desktop portal/compositor if prompted."
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+fn screen_capture_permission_hint() -> &'static str {
+    "Screen capture permission may be required by your OS/windowing system."
+}
+
 /// Window information returned by list_windows.
 #[derive(Debug, Serialize)]
 pub struct WindowInfo {
@@ -18,12 +41,11 @@ pub struct WindowInfo {
 #[instrument]
 pub fn list_windows() -> anyhow::Result<Vec<WindowInfo>> {
     let windows = Window::all().map_err(|e| {
-        warn!(error = %e, "Failed to enumerate windows — check Screen Recording permission");
+        warn!(error = %e, "Failed to enumerate windows");
         anyhow::anyhow!(
-            "Failed to enumerate windows: {}. \
-             On macOS, grant Screen Recording permission in \
-             System Settings → Privacy & Security → Screen Recording.",
-            e
+            "Failed to enumerate windows: {}. {}",
+            e,
+            screen_capture_permission_hint()
         )
     })?;
 
@@ -72,10 +94,9 @@ pub fn list_windows() -> anyhow::Result<Vec<WindowInfo>> {
     info!(count = infos.len(), filtered, "Windows listed");
     if infos.len() <= 1 {
         warn!(
-            "Very few windows found ({}) — if windows are open but not listed, \
-             check Screen Recording permission in \
-             System Settings → Privacy & Security → Screen Recording",
-            infos.len()
+            "Very few windows found ({}). If windows are open but not listed, {}",
+            infos.len(),
+            screen_capture_permission_hint()
         );
     }
     Ok(infos)
@@ -87,10 +108,9 @@ pub fn list_windows() -> anyhow::Result<Vec<WindowInfo>> {
 pub fn find_window(id: Option<u32>, title: Option<&str>) -> anyhow::Result<(Window, WindowInfo)> {
     let windows = Window::all().map_err(|e| {
         anyhow::anyhow!(
-            "Failed to enumerate windows: {}. \
-             On macOS, grant Screen Recording permission in \
-             System Settings → Privacy & Security → Screen Recording.",
-            e
+            "Failed to enumerate windows: {}. {}",
+            e,
+            screen_capture_permission_hint()
         )
     })?;
 

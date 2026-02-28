@@ -5,7 +5,7 @@
 
 MCP server for capturing window and screen screenshots. Works with any MCP-compatible client (Claude Desktop, Claude Code, etc.).
 
-Currently tested on **macOS**. Windows and Linux support is possible via [xcap](https://crates.io/crates/xcap) but not yet verified.
+Tested in CI on **macOS**, **Windows**, and **Linux** (using [xcap](https://crates.io/crates/xcap)).
 
 ## Quick start
 
@@ -22,6 +22,21 @@ curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscr
 ```bash
 curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-x86_64-apple-darwin.tar.gz | tar xz -C /usr/local/bin
 ```
+
+### Linux (x86_64)
+
+```bash
+curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-x86_64-unknown-linux-gnu.tar.gz | tar xz -C /usr/local/bin
+```
+
+### Windows (x86_64, PowerShell)
+
+```powershell
+Invoke-WebRequest -Uri "https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-x86_64-pc-windows-msvc.zip" -OutFile peekscreen.zip
+Expand-Archive peekscreen.zip -DestinationPath "$env:USERPROFILE\\bin" -Force
+```
+
+Then add `%USERPROFILE%\bin` to `PATH` if needed.
 
 **2. Add to your AI agent:**
 
@@ -44,7 +59,10 @@ cargo install --path .
 
 ### Claude Desktop
 
-Add to your config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+Add to your config:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Linux: `~/.config/Claude/claude_desktop_config.json`
 
 ```json
 {
@@ -60,15 +78,13 @@ Add to your config (`~/Library/Application Support/Claude/claude_desktop_config.
 
 - `RUST_LOG` — Control log verbosity (default: `peekscreen=info`). Logs are written to stderr.
 
-## macOS permissions
+## Screen capture permissions
 
-On macOS, **Screen Recording** permission is required for the process that launches the MCP server.
+- **macOS:** Grant **Screen Recording** permission to the app that launches `peekscreen` (terminal or Claude Desktop) in **System Settings -> Privacy & Security -> Screen Recording**.
+- **Windows:** Run in an interactive desktop session and ensure your environment allows desktop/window capture.
+- **Linux:** Run inside a graphical desktop session (X11/Wayland) and approve portal/compositor capture prompts if shown.
 
-If you run an AI agent from a terminal (e.g. Claude Code in iTerm2, Terminal.app, Warp, etc.), you must grant Screen Recording permission **to that terminal app** — not just to Claude Desktop.
-
-Go to **System Settings → Privacy & Security → Screen Recording** and add the relevant app. A restart of the terminal may be required after granting permission.
-
-> **Troubleshooting:** If `list_windows` returns an empty list or a window you can see on screen is missing from the results, the problem is almost certainly missing Screen Recording permission for the app that runs the MCP server.
+> **Troubleshooting:** If `list_windows` returns an empty list or visible windows are missing, this is usually a permission/session issue on the current OS.
 
 ## Tools
 
