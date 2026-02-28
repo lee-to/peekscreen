@@ -33,7 +33,7 @@ curl -fsSL https://github.com/lee-to/peekscreen/releases/latest/download/peekscr
 
 ```powershell
 Invoke-WebRequest -Uri "https://github.com/lee-to/peekscreen/releases/latest/download/peekscreen-x86_64-pc-windows-msvc.zip" -OutFile peekscreen.zip
-Expand-Archive peekscreen.zip -DestinationPath "$env:USERPROFILE\\bin" -Force
+Expand-Archive peekscreen.zip -DestinationPath "$env:USERPROFILE\bin" -Force
 ```
 
 Then add `%USERPROFILE%\bin` to `PATH` if needed.
